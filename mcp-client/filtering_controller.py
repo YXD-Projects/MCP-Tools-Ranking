@@ -25,7 +25,7 @@ from pydantic import BaseModel, Field
 # Use MCP canonical types so our I/O matches tools/list exactly.
 from mcp.types import Tool as McpTool, ListToolsResult
 
-# ---------- NEW: MiniLM encoder ----------
+# MiniLM encoder 
 from sentence_transformers import SentenceTransformer
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -55,9 +55,9 @@ NLIST_HINT = _env_int("FILTER_NLIST_HINT", 0)       # 0 -> heuristic
 
 # Dynamic-K knobs
 MIN_SCORE   = _env_float("FILTER_MIN_SCORE", 0.25)  # minimum fused score to be "good enough"
-MIN_K       = _env_int("FILTER_MIN_K", 3)           # always return at least this many (if available)
-MAX_K       = _env_int("FILTER_MAX_K", 12)          # never return more than this many
-GAP_DROP    = _env_float("FILTER_GAP_DROP", 0.12)   # stop at first big score drop ("elbow")
+MIN_K       = _env_int("FILTER_MIN_K", 5)           # always return at least this many (if available)
+MAX_K       = _env_int("FILTER_MAX_K", 25)          # never return more than this many
+GAP_DROP    = _env_float("FILTER_GAP_DROP", 0.20)   # stop at first big score drop ("elbow")
 
 # --------------------------
 # Embeddings: MiniLM encoder
@@ -73,6 +73,7 @@ def get_encoder() -> SentenceTransformer:
         _encoder = SentenceTransformer(_EMBED_MODEL_NAME)
     return _encoder
 
+
 def embed_texts(texts: List[str]) -> np.ndarray:
     enc = get_encoder()
     # We’ll not normalize here; we do it with faiss to keep behavior explicit.
@@ -83,6 +84,7 @@ def embed_texts(texts: List[str]) -> np.ndarray:
         normalize_embeddings=False,
         batch_size=int(os.getenv("EMBED_BATCH", "64")),
     )
+
     # Ensure float32 for faiss
     if vecs.dtype != np.float32:
         vecs = vecs.astype(np.float32, copy=False)
@@ -115,26 +117,39 @@ def extract_actions_from_text(text: str) -> List[str]:
     return verbs or toks[:5]
 
 # extract likely entity names from a JSON schema.
-def extract_entities_from_schema(schema: Dict[str, Any]) -> List[str]:
-    if not isinstance(schema, dict):
-        return []
+def extract_entities_from_schema(schema: Dict[str, Any], name: str = "", desc: str = "") -> List[str]:
+    
     ents: List[str] = []
-    props = schema.get("properties") or {}
-    if isinstance(props, dict):
-        ents.extend(props.keys())
-        for v in props.values():
-            if isinstance(v, dict) and isinstance(v.get("enum"), list):
-                ents.extend([str(x) for x in v["enum"]])
-    req = schema.get("required")
-    if isinstance(req, list):
-        ents.extend([str(x) for x in req])
-    ents = [str(w).strip().lower() for w in ents if str(w).strip()]
+
+    # --- 1. From schema ---
+    if isinstance(schema, dict):
+        props = schema.get("properties") or {}
+        if isinstance(props, dict):
+            ents.extend(map(str, props.keys()))
+            for v in props.values():
+                if isinstance(v, dict) and isinstance(v.get("enum"), list):
+                    ents.extend(map(str, v["enum"]))
+        req = schema.get("required")
+        if isinstance(req, list):
+            ents.extend(map(str, req))
+
+    # --- 2. From name/description ---
+    text = f"{name or ''} {desc or ''}".lower()
+    words = re.findall(r"[a-z][a-z0-9_\-]+", text)
+    # noun-ish tokens: avoid verbs, short junk, or filler words
+    for w in words:
+        if len(w) > 3 and not w.endswith(("ed", "ing")):
+            ents.append(w)
+
+    # --- 3. Normalize + dedup ---
+    ents = [w.strip().lower() for w in ents if w.strip()]
     return dedup(ents)
+
 
 # Produce (actions, entities) features for a single tool.
 def extract_actions_entities_for_tool(name: str, desc: str, schema: Dict[str, Any]) -> Tuple[str, str]:
     actions = extract_actions_from_text(f"{name} {desc}")
-    entities = extract_entities_from_schema(schema)
+    entities = extract_entities_from_schema(schema, name, desc)
     entities += [w for w in tokenize(desc) if w.endswith(("tion","ment","ness","ship","ity","er","or"))]
     return " ".join(actions) or (name or ""), " ".join(dedup(entities)) or (desc or name or "")
 
