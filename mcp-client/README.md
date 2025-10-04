@@ -17,6 +17,9 @@ This project is an MCP client structured in modules (`config`, `core`, `services
    ```
 3. Install Python dependencies:
    ```cmd
+   export TRANSFORMERS_NO_TF=1
+   pip install "torch>=2.2,<3" --index-url https://download.pytorch.org/whl/cpu
+   pip install fastapi uvicorn pydantic faiss-cpu sentence-transformers numpy
    pip install -r requirements.txt
    ```
 
