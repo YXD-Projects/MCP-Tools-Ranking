@@ -1,0 +1,6 @@
+registry:
+  gitmcpmoby:
+    remote:
+      url: "https://gitmcp.io/moby/moby"
+      transport_type: http
+      # transport_type: sse
