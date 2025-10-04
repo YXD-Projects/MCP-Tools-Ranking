@@ -51,7 +51,7 @@ source venv/bin/activate
 ### 3. Install dependencies
 (macOS)
 ```cmd
-pip install -r requirements_py.txt 
+pip install -r requirements_mac.txt 
 ```
 
 ```cmd
@@ -77,8 +77,14 @@ API Key for running Groq models (if used)
 
 
 ### Run the client:
+#### Windows:
 ```cmd
-python main.py
+python -m mcp_client.main
+```
+
+#### MacOS:
+```cmd
+python3 -m mcp_client.main
 ```
 
 Expected: it loads configs, connects to the Docker MCP Gateway, and lists available MCP servers.
@@ -209,9 +215,15 @@ kill -9 <PID>
 ### 3. — Run the MCP Client
 
 Open a second terminal window from the root directory and run:
+#### Windows:
+```cmd
+python -m mcp_client.main
+```
+#### MacOS:
 ```cmd
 python3 -m mcp_client.main
 ```
+
 
 
 ---
@@ -248,6 +260,12 @@ This confirms that the SentenceTransformer model was loaded correctly and the Uv
 
 
 3. Run the MCP Client in the root directory (MCP-Tools-Ranking):
+#### Windows:
+```cmd
+python -m mcp_client.main
+```
+
+#### MacOS:
 ```cmd
 python3 -m mcp_client.main
 ```
