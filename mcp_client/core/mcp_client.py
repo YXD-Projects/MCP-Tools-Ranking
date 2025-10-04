@@ -1,10 +1,10 @@
 from contextlib import AsyncExitStack
 from typing import Optional
 from mcp import ClientSession
-from services.groq_service import GroqService
-from services.tool_service import ToolService
-from core.server_connection import connect_to_server
-from core.query_processor import process_query
+from mcp_client.services.groq_service import GroqService
+from mcp_client.services.tool_service import ToolService
+from mcp_client.core.server_connection import connect_to_server
+from mcp_client.core.query_processor import process_query
 
 class MCPClient:
     def __init__(self):

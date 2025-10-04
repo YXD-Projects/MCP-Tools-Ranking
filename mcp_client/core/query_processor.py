@@ -25,6 +25,7 @@ async def process_query(query: str, session, groq):
             "parameters": tool.inputSchema
         }
     } for tool in response.tools]
+    print(available_tools)
 
     response = groq.create_completion(messages, available_tools)
     final_text = []
