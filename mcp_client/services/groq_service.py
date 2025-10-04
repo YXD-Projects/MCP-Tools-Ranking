@@ -1,9 +1,13 @@
 from groq import Groq
-from config.settings import MODEL_NAME
+from mcp_client.config.settings import MODEL_NAME
 
 class GroqService:
     def __init__(self):
         self.client = Groq()
+
+    @property
+    def chat(self):
+        return self.client.chat
 
     def create_completion(self, messages, tools=None):
         return self.client.chat.completions.create(

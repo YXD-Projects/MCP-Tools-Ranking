@@ -1,6 +1,6 @@
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
-from config.settings import DOCKER_COMMAND, SERVER_ARGS, SERVER_ENV
+from mcp_client.config.settings import DOCKER_COMMAND, SERVER_ARGS, SERVER_ENV
 
 async def connect_to_server(exit_stack):
     server_params = StdioServerParameters(
