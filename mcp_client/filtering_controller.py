@@ -54,9 +54,9 @@ E_W = _env_float("FILTER_E_W", 0.4)                 # entity weight
 NLIST_HINT = _env_int("FILTER_NLIST_HINT", 0)       # 0 -> heuristic
 
 # Dynamic-K knobs
-MIN_SCORE   = _env_float("FILTER_MIN_SCORE", 0.25)  # minimum fused score to be "good enough"
+MIN_SCORE   = _env_float("FILTER_MIN_SCORE", 0.32)  # minimum fused score to be "good enough"
 MIN_K       = _env_int("FILTER_MIN_K", 3)           # always return at least this many (if available)
-MAX_K       = _env_int("FILTER_MAX_K", 12)          # never return more than this many
+MAX_K       = _env_int("FILTER_MAX_K", 15)          # never return more than this many
 GAP_DROP    = _env_float("FILTER_GAP_DROP", 0.12)   # stop at first big score drop ("elbow")
 
 # --------------------------
@@ -105,6 +105,9 @@ def dedup(seq: List[str]) -> List[str]:
     return list(dict.fromkeys(seq))
 
 def tokenize(text: str) -> List[str]:
+    # split camelCase before regex tokenization
+    if text:
+        text = re.sub(r"([a-z])([A-Z])", r"\1 \2", text)
     return [w.lower() for w in _WORD_RE.findall(text or "")]
 
 # extract likely action tokens (verbs/phrases) from description.
@@ -136,8 +139,9 @@ def extract_actions_entities_for_tool(name: str, desc: str, schema: Dict[str, An
     actions = extract_actions_from_text(f"{name} {desc}")
     entities = extract_entities_from_schema(schema)
     entities += [w for w in tokenize(desc) if w.endswith(("tion","ment","ness","ship","ity","er","or"))]
+    # NEW: pull tokens from the tool name (e.g., create_repository -> repository)
+    entities += tokenize(name)
     return " ".join(actions) or (name or ""), " ".join(dedup(entities)) or (desc or name or "")
-
 
 # --------------------------
 # FAISS helpers
@@ -160,6 +164,12 @@ def _build_index(xb: np.ndarray, label: str) -> tuple[faiss.Index, int]:
         ivf = faiss.index_factory(d, f"IVF{nlist},Flat", faiss.METRIC_INNER_PRODUCT)
         while hasattr(ivf, "nlist") and n < 39 * ivf.nlist and ivf.nlist > 1:
             ivf = faiss.index_factory(d, f"IVF{max(1, ivf.nlist//2)},Flat", faiss.METRIC_INNER_PRODUCT)
+
+        # NEW: tune nprobe (higher = more accurate, slightly slower)
+        nprobe = _env_int("FILTER_NPROBE", max(1, int(getattr(ivf, "nlist", 1) // 8)))
+        if hasattr(ivf, "nprobe"):
+            ivf.nprobe = max(1, min(nprobe, 64))
+
         if hasattr(ivf, "train"):
             ivf.train(xb)
         idx = faiss.IndexIDMap2(ivf)
@@ -296,7 +306,7 @@ def filter_tools(req: FilterRequest):
     - Look up stored session by session_id (must be created via /index_tools).
     - Run two-stage retrieval (actions recall, entities re-rank) against
       the stored indices.
-    - Return Top-K ORIGINAL tool objects in ranked order (K is dynamic).
+    - Only filter when a non-empty query is provided; otherwise return all tools unchanged.
     """
     sid = (req.session_id or "").strip()
     if not sid or sid not in _sessions:
@@ -308,13 +318,13 @@ def filter_tools(req: FilterRequest):
         raise HTTPException(status_code=400, detail="no tools are stored for this session")
 
     query = (req.query or "").strip()
+
+    # NEW: if no query, return ALL tools unchanged (no filtering, no cap)
     if not query:
-        # When no query is supplied at runtime, return up to MAX_K unchanged
-        return {"tools": tools_in[:MAX_K]}
+        return {"tools": tools_in}
 
     actions_index = store.actions_index
     ent_vecs = store.entity_vecs
-
     if actions_index is None or store.entities_index is None or ent_vecs is None:
         raise HTTPException(status_code=500, detail="indices not available for this session")
 
@@ -329,13 +339,32 @@ def filter_tools(req: FilterRequest):
     act_ids = I[0][mask].astype(np.int64)
 
     if act_ids.size == 0:
+        # Fallback: if nothing matched, just return a small, safe default slice
         return {"tools": tools_in[:MIN_K]}
 
     # Stage B: entity similarity (precision)
     ent_scores = ent_vecs[act_ids] @ q_vec[0].astype(np.float32)
 
-    # Fuse and sort
+    # Fuse scores
     fused = (A_W * act_scores) + (E_W * ent_scores)
+
+    # (Optional micro-bias block—keep or remove as you prefer)
+    q = query.lower()
+    def _bias(tool):
+        name = (tool.name or "").lower()
+        desc = (tool.description or "").lower()
+        b = 0.0
+        if ("create" in q or "make" in q or "init" in q or "new " in q):
+            if "create" in name or "create" in desc:
+                b += 0.05
+        if ("repo" in q or "repository" in q) and ("gist" in name or "gist" in desc):
+            b -= 0.05
+        return b
+
+    bias = np.array([_bias(tools_in[i]) for i in act_ids], dtype=np.float32)
+    fused = fused + bias
+
+    # Sort by fused score
     order = np.argsort(-fused)
     sorted_ids = act_ids[order]
     sorted_scores = fused[order]
@@ -348,6 +377,7 @@ def filter_tools(req: FilterRequest):
     idxs = sorted_ids[:k_final].tolist()
     tools_out = [tools_in[i] for i in idxs]
     return {"tools": tools_out}
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
