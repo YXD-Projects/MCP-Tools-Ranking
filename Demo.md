@@ -9,11 +9,11 @@ This project demonstrates how an MCP client connects to Docker’s MCP Gateway a
 
 
 #### Navigation
+- [Demo Walkthrough Videos](#demo-walkthrough-videos)
 - [Client Setup](#client-setup)
 - [Gateway Setup](#mcp-gateway-setup)
 - [Running the Services](#running-the-services)
 - [Demo Steps & Output](#demo-steps-and-output)
-- [Demo Walkthrough Videos](#demo-walkthrough-videos)
 
 
 
