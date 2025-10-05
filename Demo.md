@@ -352,14 +352,17 @@ The MCP Client should successfully execute the create_repository tool from the G
 ---
 
 ### Gateway Setup Tutorial
-[Watch the Gateway Setup Tutorial on Google Drive](https://drive.google.com/file/d/1OyVqwKBNtIjHfa-8WGnTXp8tbCWLJgcr/view?usp=drive_link)
+[Watch the Gateway Setup Tutorial on Google Drive](https://drive.google.com/file/d/1CZ4RLiKmtaaxUYy3bW0qc6lQKFHJhnxZ/view?usp=drive_link)
 <p align="center"><em>Step-by-step guide to building and running the Docker MCP Gateway.</em></p>
 
 ---
 
 ### Filtering System Overview
-[Watch the Filtering System Overview on Google Drive](https://drive.google.com/file/d/1CZ4RLiKmtaaxUYy3bW0qc6lQKFHJhnxZ/view?usp=drive_link)
+[Watch the Filtering System Overview on Google Drive](https://drive.google.com/file/d/1OyVqwKBNtIjHfa-8WGnTXp8tbCWLJgcr/view?usp=drive_link)
 <p align="center"><em>Demo of the FAISS-based filtering system and query reranking process.</em></p>
+
+
+
 
 
 
