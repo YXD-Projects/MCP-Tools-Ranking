@@ -13,6 +13,8 @@ This project demonstrates how an MCP client connects to Docker’s MCP Gateway a
 - [Gateway Setup](#mcp-gateway-setup)
 - [Running the Services](#running-the-services)
 - [Demo Steps & Output](#demo-steps-and-output)
+- [Demo Walkthrough Videos](#demo-walkthrough-videos)
+
 
 
 ---
@@ -340,8 +342,24 @@ The MCP Client should successfully execute the create_repository tool from the G
 
 
 
-# Demo Walkthrough Video
+# Demo Walkthrough Videos
 
+
+### Client Setup Walkthrough
+[Watch the Client Setup Walkthrough on Google Drive](https://drive.google.com/file/d/1_FRLsEMEk4AYZIscyIjBgGSz-OkUQYvl/view?usp=drive_link)
+<p align="center"><em>Walkthrough showing how to set up and run the MCP Client locally.</em></p>
+
+---
+
+### Gateway Setup Tutorial
+[Watch the Gateway Setup Tutorial on Google Drive](https://drive.google.com/file/d/1OyVqwKBNtIjHfa-8WGnTXp8tbCWLJgcr/view?usp=drive_link)
+<p align="center"><em>Step-by-step guide to building and running the Docker MCP Gateway.</em></p>
+
+---
+
+### Filtering System Overview
+[Watch the Filtering System Overview on Google Drive](https://drive.google.com/file/d/1CZ4RLiKmtaaxUYy3bW0qc6lQKFHJhnxZ/view?usp=drive_link)
+<p align="center"><em>Demo of the FAISS-based filtering system and query reranking process.</em></p>
 
 
 
