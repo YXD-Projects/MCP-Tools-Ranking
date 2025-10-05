@@ -199,8 +199,15 @@ cd mcp-client
 ### 2. — Run the Filtering Service
 
 Once you’re inside the mcp-client directory and your virtual environment is active, start the filtering service:
+
+#### Windows:
 ```cmd
-python filtering_service.py
+python filtering_controller.py
+```
+
+#### MacOS:
+```cmd
+python3 filtering_controller.py
 ```
 
 - Keep this terminal window open the service needs to keep running in the background.
@@ -236,8 +243,18 @@ python3 -m mcp_client.main
 2. Run the Filtering Service:
 ```cmd
 cd mcp-client
-python filtering_service.py
 ```
+#### Windows:
+```cmd
+python filtering_controller.py
+```
+
+#### MacOS:
+```cmd
+python3 filtering_controller.py
+```
+
+
 Kill previous process if needed:
 ```cmd
 lsof -i :8000
@@ -320,6 +337,12 @@ The MCP Client should successfully execute the create_repository tool from the G
 - GitHub personal access token is authenticating successfully.
 - A new repository named my_repo was created directly from the MCP Client interface.
 - The MCP Client remains active and ready for follow-up actions (e.g., adding files, branches, or issues).
+
+
+
+# Demo Walkthrough Video
+
+
 
 
 
