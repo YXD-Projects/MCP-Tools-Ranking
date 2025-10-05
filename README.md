@@ -1,7 +1,9 @@
 ﻿# MCP-Tools-Ranking
 
 # Overview
-This project consists of an mcp client connected to Docker's MCP Gateway, and a ranking service that uses sentence-transformers and FAISS to tool descriptions based on their relevance to a query.
+This project consists of an MCP client connected to Docker’s MCP Gateway, and a ranking service that uses Sentence-Transformers and FAISS to rank and filter tool descriptions based on their
+relevance to an incoming query. It addresses the problem of context-window overload, where too many tool schemas fill the LLM’s context window. By pre-filtering and returning only the most relevant tools, it reduces token usage, improves accuracy, and speeds up tool selection.
+
 
 # Prerequisites
 - Python 3.11 or higher
@@ -34,5 +36,6 @@ This project consists of an mcp client connected to Docker's MCP Gateway, and a 
    ```cmd
    python main.py
    ```
+
 
 
