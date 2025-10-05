@@ -35,7 +35,7 @@ This project demonstrates how an MCP client connects to Docker’s MCP Gateway a
 ```cmd
 cd MCP-Tools-Ranking/mcp-client
 ```
-
+<br><br>
 ### 2. Create and Activate a Virtual Environment
 
 #### Windows (PowerShell):
@@ -49,22 +49,24 @@ python -m venv venv
 python3 -m venv .venv
 source venv/bin/activate
 ```
-
+<br><br>
 ### 3. Install dependencies
+
+(Windows)
+```cmd
+pip install -r requirements.txt 
+```
+
 (macOS)
 ```cmd
 pip install -r requirements_mac.txt 
 ```
 
-```cmd
-(Windows)
-pip install -r requirements.txt 
-```
+#### Deactivate venv after
 
-- Deactivate venv after
+<br><br>
 
-
-### Environment variables (.env):
+### 4. Environment variables (.env):
 create a env file at project root
 ```cmd
 touch .env
@@ -72,25 +74,19 @@ touch .env
 
 Paste the following configurations:
 The new query endpoint of Docker's MCP server (adjust port if needed)
-- SERVER_QUERY_URL=http://localhost:8080/query
 
+```cmd
+SERVER_QUERY_URL=http://localhost:8080/query
+```
+
+```cmd
 API Key for running Groq models (if used)
-- GROQ_API_KEY=your_groq_api_key
-
-
-### Run the client:
-#### Windows:
-```cmd
-python -m mcp_client.main
+GROQ_API_KEY=your_groq_api_key
 ```
+#### MUST HAVE API KEY
 
-#### MacOS:
-```cmd
-python3 -m mcp_client.main
-```
-
-Expected: it loads configs, connects to the Docker MCP Gateway, and lists available MCP servers.
-Susupend service once confirmed it works
+#### Access a free groq api key: 
+https://console.groq.com/keys
 
 
 
@@ -118,6 +114,8 @@ Once installed:
 - In the "MCP Toolkit" you can add servers with tools to be tested
     - Some tools may require API keys, personal access token or OAuth (Github for example)
 - Naviagate to mcp-gateway directory
+  
+<br><br>
 
 ### 2. — Remove Any Old MCP Plugin Versions
 
@@ -133,6 +131,8 @@ Remove-Item -Recurse -Force "$env:USERPROFILE\.docker\cli-plugins" -ErrorAction 
 rm -rf ~/.docker/cli-plugins
 ```
 
+<br><br>
+
 ### 3. — Create a cli-plugins Folder/Docker executable/Move excutable
 
 #### Now recreate the folder:
@@ -146,7 +146,7 @@ mkdir "$env:USERPROFILE\.docker\cli-plugins"
 ```cmd
 mkdir -p "$HOME/.docker/cli-plugins/"
 ```
-
+<br><br>
 #### Build the docker-mcp Executable:
 #### From the root of the mcp-gateway project directory, run:
 ```cmd
@@ -158,7 +158,7 @@ This command:
 - Outputs the executable file to the dist folder
 - Names it docker-mcp.exe (so Docker recognizes it as a plugin)
 
-
+<br><br>
 #### Move the new file to your Docker CLI plugin directory:
 #### Windows PowerShell
 ```cmd
@@ -169,7 +169,7 @@ copy "dist\docker-mcp.exe" "$env:USERPROFILE\.docker\cli-plugins\"
 ```cmd
 cp dist/docker-mcp "$HOME/.docker/cli-plugins/"
 ```
-
+<br><br>
 ### Step 4 — Verify Installation
 
 #### Run this command to confirm Docker recognizes the plugin:
@@ -177,7 +177,8 @@ cp dist/docker-mcp "$HOME/.docker/cli-plugins/"
 docker mcp --help
 docker mcp gateway run --help
 ```
-- If everything was set up correctly, you’ll see usage instructions for the docker mcp command.
+
+#### If everything was set up correctly, you’ll see usage instructions for the docker mcp command.
 
 
 
@@ -185,11 +186,12 @@ docker mcp gateway run --help
 <br><br>
 
 
-## Running the Services
+# Running the Services
 
 Once Docker Desktop is installed and actively running in the background.
 You’ll be using your system terminal (PowerShell on Windows or Terminal on macOS/Linux).
 
+<br><br>
 
 ### 1. — Navigate to the Project Folder
 
@@ -197,6 +199,8 @@ Enter the client folder where the filtering service is located and start your vi
 ```cmd
 cd mcp-client
 ```
+
+<br><br>
 
 ### 2. — Run the Filtering Service
 
@@ -213,7 +217,7 @@ python3 filtering_controller.py
 ```
 
 - Keep this terminal window open the service needs to keep running in the background.
-- The service may need up to 30s to startup
+- The service may need up to 20s to startup
 
 #### Find and kill previous process:
 ```cmd
@@ -221,9 +225,17 @@ lsof -i :8000
 kill -9 <PID>
 ```
 
+<br><br>
+
 ### 3. — Run the MCP Client
 
 Open a second terminal window from the root directory and run:
+
+#### Directory:
+```cmd
+cd MCP-Tools-Ranking
+```
+
 #### Windows:
 ```cmd
 python -m mcp_client.main
@@ -236,13 +248,17 @@ python3 -m mcp_client.main
 
 
 ---
+<br><br>
+
 
 
 # Demo Steps and Output
 
 1. Make sure Docker Desktop is running.
+2. 
+   <br><br>
    
-2. Run the Filtering Service:
+3. Run the Filtering Service:
 ```cmd
 cd mcp-client
 ```
@@ -257,11 +273,13 @@ python3 filtering_controller.py
 ```
 
 
-Kill previous process if needed:
+#### Kill a previous process if needed:
 ```cmd
 lsof -i :8000
 kill -9 <PID>
 ```
+
+<br><br>
 
 #### In the terminal you will see:
 
@@ -276,6 +294,7 @@ This confirms that the SentenceTransformer model was loaded correctly and the Uv
 - To stop: Press CTRL + C in the terminal window.
 
 
+<br><br>
 
 
 3. Run the MCP Client in the root directory (MCP-Tools-Ranking):
@@ -288,6 +307,8 @@ python -m mcp_client.main
 ```cmd
 python3 -m mcp_client.main
 ```
+
+<br><br>
 
 #### In the terminal you will see:
 
@@ -305,6 +326,8 @@ If everything is configured correctly, you’ll see logs similar to the followin
 <p align="center"><em>Figure 2 – Tool indexing and filtering completed successfully.</em></p>
 
 
+<br><br>
+
 
 #### After a Query:
 
@@ -321,6 +344,7 @@ The MCP Client should successfully execute the create_repository tool from the G
 </p>
 <p align="center"><em>Figure 4 – Successful tool call: a new GitHub repository (<code>my_new_newest_repo</code>) is created.</em></p>
 
+<br><br>
 
 #### In the server terminal you will see logs:
 - Server active: Uvicorn service is running locally.
@@ -334,6 +358,28 @@ The MCP Client should successfully execute the create_repository tool from the G
 <p align="center"><em>Figure 5 – Filtering service running successfully: tools embedded (n=117), indexed with IVF-Flat(IP), and confirmed via 200 OK API responses.</em></p>
 
 
+<br><br>
+
+
+#### The following action by LLM:
+
+<p align="center">
+  <img width="1504" height="755" alt="Screenshot 2025-10-05 at 8 08 05 AM" src="https://github.com/user-attachments/assets/12fadac2-c479-4106-9d0d-2efb58fce4cf" />
+</p>
+<p align="center"><em>Figure 6 - Confirmation of new repositories successfully created via the MCP Client command.</em></p>
+
+
+This screenshot shows the result after requesting the MCP Client to create a new repository named my_demo_repo1 on GitHub. 
+The image confirms that the repository creation process worked as intended and the my_demo_repo1 repo appears publicly under the my GitHub profile.
+
+In addition to this repository, several other test repositories were also generated during earlier validation runs, including:
+- my_new_newest_repo
+- my_newest_repo
+- my_new_repo
+- my_repo
+
+<br><br>
+
 #### This means:
 - The GitHub MCP server is responding properly through the Docker MCP Gateway.
 - GitHub personal access token is authenticating successfully.
@@ -341,8 +387,16 @@ The MCP Client should successfully execute the create_repository tool from the G
 - The MCP Client remains active and ready for follow-up actions (e.g., adding files, branches, or issues).
 
 
+---
+<br><br>
 
 # Demo Walkthrough Videos
+
+#### Prerequisites: 
+- Docker installed, running, and MCP servers configured
+- Groq api key (https://console.groq.com/keys) to place in .env
+  
+<br><br>
 
 
 ### Client Setup Walkthrough
